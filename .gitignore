@@ -1,0 +1,9 @@
+# Backups dos scripts
+*backup*
+
+# Arquivo de configuração com informações sensíveis
+config.sh
+
+# Arquivos de log e de trava de execução
+*.log
+*.lockfile
