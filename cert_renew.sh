@@ -20,8 +20,19 @@
 #   0 20 2 */2 * root bash /path/to/cert_renew.sh
 # ================================================================
 
-# Localização dos Arquivos
+# Diretório absoluto deste script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Carregar configuração
+if [ -f "$SCRIPT_DIR/config.sh" ]; then
+  source "$SCRIPT_DIR/config.sh"
+else
+  echo "❌ Arquivo config.sh não encontrado."
+  echo "   Copie config.git.sh para config.sh e configure seus dados."
+  exit 1
+fi
+
+# Diretório de certificados
 LIVE_DIR="/etc/letsencrypt/live"
 
 # Configuração de Log e Trava
@@ -181,12 +192,6 @@ cleanup() {
     fi
 }
 
-# Garante que a limpeza seja executada em qualquer cenário de saída (normal, erro, interrupção)
-trap cleanup EXIT INT TERM
-
-# Cria lockfile com verificação embutida
-manage_lockfile create || exit_with_code 1
-
 # Verifica se as variáveis existem e têm valor
 if [ -z "${TG_CHAT_ID:-}" ] || [ -z "${TG_TOKEN:-}" ] || [ -z "${WEB_SERVER:-}" ] || [ -z "${DOMAINS+x}" ] || [ ${#DOMAINS[@]} -eq 0 ]; then
     echo "ERRO: uma ou mais variáveis críticas não estão definidas ou estão vazias: TG_CHAT_ID | TG_TOKEN | WEB_SERVER | DOMAINS"
@@ -199,6 +204,11 @@ if [ "$(id -u)" -ne 0 ]; then
     exit_with_code
 fi
 
+# Garante que a limpeza seja executada em qualquer cenário de saída (normal, erro, interrupção)
+trap cleanup EXIT INT TERM
+
+# Cria lockfile com verificação embutida
+manage_lockfile create || exit_with_code 1
 
 # Status do servidor web no início
 WEB_SERVER_STATUS_ON_START=$(systemctl is-active "$WEB_SERVER" || echo "inactive")

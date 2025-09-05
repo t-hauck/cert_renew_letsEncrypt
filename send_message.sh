@@ -1,8 +1,19 @@
 #!/usr/bin/env bash
 ##
-# Carrega as configurações e o token da API
-source "$(dirname "${BASH_SOURCE[0]}")/config.sh"
+# Diretório absoluto deste script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Carregar configuração
+if [ -f "$SCRIPT_DIR/config.sh" ]; then
+  source "$SCRIPT_DIR/config.sh"
+else
+  echo "❌ Arquivo config.sh não encontrado."
+  echo "   Copie config.git.sh para config.sh e configure seus dados."
+  exit 1
+fi
+
+
+# URL com Token da API
 TG_URL="https://api.telegram.org/bot${TG_TOKEN}/sendMessage"
 
 # === TELEGRAM FUNCTION ===
